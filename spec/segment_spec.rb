@@ -91,7 +91,7 @@ MyNamespace.translations["fr"] = {"test":"Test2"};
 
     context "when sort_translation_keys? is true" do
       before :each do
-        I18n::JS.sort_translation_keys = true
+        I18n::JS.configuration.sort_translation_keys = true
       end
 
       let(:translations){ { en: { "b" => "Test", "a" => "Test" } } }

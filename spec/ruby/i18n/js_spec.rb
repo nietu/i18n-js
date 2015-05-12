@@ -189,10 +189,10 @@ EOS
         I18n::JS.filtered_translations
       end
 
-      let!(:old_sort_translation_keys) { I18n::JS.sort_translation_keys? }
-      before { I18n::JS.sort_translation_keys = sort_translation_keys_value }
-      after { I18n::JS.sort_translation_keys = old_sort_translation_keys }
-      before { expect(I18n::JS.sort_translation_keys?).to eq(sort_translation_keys_value) }
+      let!(:old_sort_translation_keys) { I18n::JS.configuration.sort_translation_keys? }
+      before { I18n::JS.configuration.sort_translation_keys = sort_translation_keys_value }
+      after { I18n::JS.configuration.sort_translation_keys = old_sort_translation_keys }
+      before { expect(I18n::JS.configuration.sort_translation_keys?).to eq(sort_translation_keys_value) }
 
       let(:sorted_hash) do
         {sorted: :hash}
@@ -484,59 +484,6 @@ EOS
   end
 
   describe "translation key sorting" do
-
-    describe ".sort_translation_keys?" do
-      after { described_class.send(:remove_instance_variable, :@sort_translation_keys) }
-      subject { described_class.sort_translation_keys? }
-
-
-      context "set with config" do
-
-        context 'when :sort_translation_keys is not set in config' do
-          before :each do
-            set_config "default.yml"
-          end
-
-          it { should eq true }
-        end
-
-        context 'when :sort_translation_keys set to true in config' do
-          before :each do
-            set_config "js_sort_translation_keys_true.yml"
-          end
-
-          it { should eq true }
-        end
-
-        context 'when :sort_translation_keys set to false in config' do
-          before :each do
-            set_config "js_sort_translation_keys_false.yml"
-          end
-
-          it { should eq false }
-        end
-      end
-
-      context 'set by .sort_translation_keys' do
-
-        context "when it is not set" do
-          it { should eq true }
-        end
-
-        context "when it is set to true" do
-          before { described_class.sort_translation_keys = true }
-
-          it { should eq true }
-        end
-
-        context "when it is set to false" do
-          before { described_class.sort_translation_keys = false }
-
-          it { should eq false }
-        end
-      end
-    end
-
     context "exporting" do
       subject do
         I18n::JS.export
@@ -558,6 +505,5 @@ EOS
         end
       end
     end
-
   end
 end

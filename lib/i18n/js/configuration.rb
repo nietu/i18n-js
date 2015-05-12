@@ -28,6 +28,16 @@ module I18n
         new_path = :none unless new_path.is_a?(String)
         @export_i18n_js_dir_path = new_path
       end
+
+      def sort_translation_keys?
+        @sort_translation_keys ||= (JS.config[:sort_translation_keys]) if JS.config.has_key?(:sort_translation_keys)
+        @sort_translation_keys = true if @sort_translation_keys.nil?
+        @sort_translation_keys
+      end
+
+      def sort_translation_keys=(value)
+        @sort_translation_keys = !!value
+      end
     end
   end
 end

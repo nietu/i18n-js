@@ -94,7 +94,7 @@ module I18n
           Utils.deep_merge!(result, segment.translations)
         end
       end
-      return Utils.deep_key_sort(translations) if I18n::JS.sort_translation_keys?
+      return Utils.deep_key_sort(translations) if I18n::JS.configuration.sort_translation_keys?
       translations
     end
 
@@ -183,16 +183,6 @@ module I18n
         # default value
         true
       end
-    end
-
-    def self.sort_translation_keys?
-      @sort_translation_keys ||= (config[:sort_translation_keys]) if config.has_key?(:sort_translation_keys)
-      @sort_translation_keys = true if @sort_translation_keys.nil?
-      @sort_translation_keys
-    end
-
-    def self.sort_translation_keys=(value)
-      @sort_translation_keys = !!value
     end
 
     ### Export i18n.js
