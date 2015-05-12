@@ -15,7 +15,6 @@ module I18n
     end
 
     DEFAULT_CONFIG_PATH = "config/i18n-js.yml"
-    DEFAULT_EXPORT_DIR_PATH = "public/javascripts"
 
     # Call this method to modify defaults in your initializers.
     #
@@ -103,7 +102,7 @@ module I18n
       if config? && config[:translations]
         configured_segments
       else
-        [Segment.new("#{DEFAULT_EXPORT_DIR_PATH}/translations.js", translations)]
+        [Segment.new("#{Configuration::DEFAULT_EXPORT_DIR_PATH}/translations.js", translations)]
       end
     end
 
@@ -201,24 +200,13 @@ module I18n
 
       # Copy i18n.js
       def self.export_i18n_js
+        export_i18n_js_dir_path = configuration.export_i18n_js_dir_path
         return unless export_i18n_js_dir_path.is_a? String
 
         FileUtils.mkdir_p(export_i18n_js_dir_path)
 
         i18n_js_path = File.expand_path('../../../app/assets/javascripts/i18n.js', __FILE__)
         FileUtils.cp(i18n_js_path, export_i18n_js_dir_path)
-      end
-
-      def self.export_i18n_js_dir_path
-        @export_i18n_js_dir_path ||= (config[:export_i18n_js] || :none) if config.has_key?(:export_i18n_js)
-        @export_i18n_js_dir_path ||= DEFAULT_EXPORT_DIR_PATH
-        @export_i18n_js_dir_path
-      end
-
-      # Setting this to nil would disable i18n.js exporting
-      def self.export_i18n_js_dir_path=(new_path)
-        new_path = :none unless new_path.is_a? String
-        @export_i18n_js_dir_path = new_path
       end
     end
   end

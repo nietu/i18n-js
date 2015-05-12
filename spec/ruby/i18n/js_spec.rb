@@ -2,6 +2,10 @@ require "spec_helper"
 
 describe I18n::JS do
 
+  before do
+    stub_const("I18n::JS::Configuration::DEFAULT_EXPORT_DIR_PATH", temp_path)
+  end
+
   describe "configuration" do
     describe ".configuration" do
       subject { described_class.configuration }
@@ -41,10 +45,6 @@ describe I18n::JS do
   end
 
   context "exporting" do
-    before do
-      stub_const('I18n::JS::DEFAULT_EXPORT_DIR_PATH', temp_path)
-    end
-
     it "exports messages to default path when configuration file doesn't exist" do
       I18n::JS.export
       file_should_exist "translations.js"
@@ -86,13 +86,13 @@ describe I18n::JS do
       file_should_exist "en.js"
       file_should_exist "fr.js"
 
-      en_output = File.read(File.join(I18n::JS.export_i18n_js_dir_path, "en.js"))
+      en_output = File.read(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "en.js"))
       expect(en_output).to eq(<<EOS
 I18n.translations || (I18n.translations = {});
 I18n.translations["en"] = {"admin":{"edit":{"title":"Edit"},"show":{"note":"more details","title":"Show"}},"date":{"abbr_day_names":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"day_names":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"formats":{"default":"%Y-%m-%d","long":"%B %d, %Y","short":"%b %d"},"month_names":[null,"January","February","March","April","May","June","July","August","September","October","November","December"]}};
 EOS
 )
-      fr_output = File.read(File.join(I18n::JS.export_i18n_js_dir_path, "fr.js"))
+      fr_output = File.read(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "fr.js"))
       expect(fr_output).to eq(<<EOS
 I18n.translations || (I18n.translations = {});
 I18n.translations["fr"] = {"admin":{"edit":{"title":"Editer"},"show":{"note":"plus de détails","title":"Visualiser"}},"date":{"abbr_day_names":["dim","lun","mar","mer","jeu","ven","sam"],"abbr_month_names":[null,"jan.","fév.","mar.","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],"day_names":["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],"formats":{"default":"%d/%m/%Y","long":"%e %B %Y","long_ordinal":"%e %B %Y","only_day":"%e","short":"%e %b"},"month_names":[null,"janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"]}};
@@ -117,13 +117,13 @@ EOS
 
       result.map(&:save!)
 
-      en_output = File.read(File.join(I18n::JS.export_i18n_js_dir_path, "bits.en.js"))
+      en_output = File.read(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "bits.en.js"))
       expect(en_output).to eq(<<EOS
 I18n.translations || (I18n.translations = {});
 I18n.translations["en"] = {"date":{"formats":{"default":"%Y-%m-%d","long":"%B %d, %Y","short":"%b %d"}},"number":{"currency":{"format":{"delimiter":",","format":"%u%n","precision":2,"separator":".","unit":"$"}}}};
 EOS
 )
-      fr_output = File.read(File.join(I18n::JS.export_i18n_js_dir_path, "bits.fr.js"))
+      fr_output = File.read(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "bits.fr.js"))
       expect(fr_output).to eq(<<EOS
 I18n.translations || (I18n.translations = {});
 I18n.translations["fr"] = {"date":{"formats":{"default":"%d/%m/%Y","long":"%e %B %Y","long_ordinal":"%e %B %Y","only_day":"%e","short":"%e %b"}},"number":{"currency":{"format":{"format":"%n %u","precision":2,"unit":"€"}}}};
@@ -335,14 +335,13 @@ EOS
   context "namespace and pretty_print options" do
 
     before do
-      stub_const('I18n::JS::DEFAULT_EXPORT_DIR_PATH', temp_path)
       set_config "js_file_with_namespace_and_pretty_print.yml"
     end
 
     it "exports with defined locale as fallback when enabled" do
       I18n::JS.export
       file_should_exist "en.js"
-      output = File.read(File.join(I18n::JS.export_i18n_js_dir_path, "en.js"))
+      output = File.read(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "en.js"))
       expect(output).to match(/^#{
 <<EOS
 Foo.translations || (Foo.translations = {});
@@ -390,10 +389,6 @@ EOS
   end
 
   context "general" do
-    it "sets export directory" do
-      I18n::JS::DEFAULT_EXPORT_DIR_PATH.should eql("public/javascripts")
-    end
-
     it "sets empty hash as configuration when no file is found" do
       I18n::JS.config?.should eql(false)
       I18n::JS.config.should eql({})
@@ -408,14 +403,19 @@ EOS
   end
 
   describe "i18n.js exporting" do
-    after { begin described_class.send(:remove_instance_variable, :@export_i18n_js_dir_path); rescue; end }
+    after do
+      begin
+        described_class.configuration.send(:remove_instance_variable, :@export_i18n_js_dir_path)
+      rescue
+      end
+    end
 
     describe ".export_i18n_js with global variable" do
       before do
         allow(FileUtils).to receive(:mkdir_p).and_call_original
         allow(FileUtils).to receive(:cp).and_call_original
 
-        described_class.stub(:export_i18n_js_dir_path).and_return(export_i18n_js_dir_path)
+        allow(described_class.configuration).to receive(:export_i18n_js_dir_path).and_return(export_i18n_js_dir_path)
         I18n::JS.export_i18n_js
       end
 
@@ -429,7 +429,7 @@ EOS
           expect(FileUtils).to have_received(:cp).once
         end
         it "exports the file" do
-          File.should be_file(File.join(I18n::JS.export_i18n_js_dir_path, "i18n.js"))
+          File.should be_file(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "i18n.js"))
         end
       end
 
@@ -479,28 +479,6 @@ EOS
         it "does NOT copy the file with FileUtils.cp" do
           expect(FileUtils).to_not have_received(:cp)
         end
-      end
-    end
-
-    describe '.export_i18n_js_dir_path' do
-      let(:default_path) { I18n::JS::DEFAULT_EXPORT_DIR_PATH }
-      let(:new_path) { File.join("tmp", default_path) }
-      after { described_class.send(:remove_instance_variable, :@export_i18n_js_dir_path) }
-
-      subject { described_class.export_i18n_js_dir_path }
-
-      context "when it is not set" do
-        it { should eq default_path }
-      end
-      context "when it is set to another path already" do
-        before { described_class.export_i18n_js_dir_path = new_path }
-
-        it { should eq new_path }
-      end
-      context "when it is set to nil already" do
-        before { described_class.export_i18n_js_dir_path = nil }
-
-        it { should eq :none }
       end
     end
   end
@@ -563,11 +541,7 @@ EOS
       subject do
         I18n::JS.export
         file_should_exist "en.js"
-        File.read(File.join(I18n::JS.export_i18n_js_dir_path, "en.js"))
-      end
-
-      before do
-        stub_const('I18n::JS::DEFAULT_EXPORT_DIR_PATH', temp_path)
+        File.read(File.join(I18n::JS.configuration.export_i18n_js_dir_path, "en.js"))
       end
 
       context 'sort_translation_keys is true' do
