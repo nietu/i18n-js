@@ -2,6 +2,28 @@ require "spec_helper"
 
 describe I18n::JS do
 
+  describe "configuration" do
+    describe ".configuration" do
+      subject { described_class.configuration }
+
+      it { should be_a(I18n::JS::Configuration) }
+      it "returns the same instance when called twice" do
+        is_expected.to eql(described_class.configuration)
+      end
+    end
+
+    describe ".configure" do
+      it "requires a block to be passed" do
+        expect { described_class.configure }.to raise_error
+      end
+      it "passes the config object to the block passed in" do
+        described_class.configure do |config|
+          expect(config).to eql(described_class.configuration)
+        end
+      end
+    end
+  end
+
   describe '.config_file_path' do
     let(:default_path) { I18n::JS::DEFAULT_CONFIG_PATH }
     let(:new_path) { File.join("tmp", default_path) }

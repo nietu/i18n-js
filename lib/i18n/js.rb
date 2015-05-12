@@ -1,6 +1,7 @@
 require "yaml"
 require "i18n"
 require "fileutils"
+require "i18n/js/configuration"
 require "i18n/js/utils"
 
 module I18n
@@ -15,6 +16,24 @@ module I18n
 
     DEFAULT_CONFIG_PATH = "config/i18n-js.yml"
     DEFAULT_EXPORT_DIR_PATH = "public/javascripts"
+
+    # Call this method to modify defaults in your initializers.
+    #
+    # @example
+    #   I18n::JS.configure do |config|
+    #     config.some_config = some_value
+    #   end
+    def self.configure
+      yield(configuration)
+      self
+    end
+
+    # The configuration object.
+    #
+    # @see I18n::JS.configure
+    def self.configuration
+      @configuration ||= Configuration.new
+    end
 
     # The configuration file. This defaults to the `config/i18n-js.yml` file.
     #
