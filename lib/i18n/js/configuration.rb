@@ -17,6 +17,10 @@ module I18n
 
       # Custom accessors
 
+      def export_i18n_js?
+        export_i18n_js_dir_path.is_a?(String)
+      end
+
       def export_i18n_js_dir_path
         @export_i18n_js_dir_path ||= (JS.config[:export_i18n_js] || :none) if JS.config.has_key?(:export_i18n_js)
         @export_i18n_js_dir_path ||= DEFAULT_EXPORT_DIR_PATH

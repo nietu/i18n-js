@@ -179,8 +179,8 @@ module I18n
 
       # Copy i18n.js
       def self.export_i18n_js
+        return unless configuration.export_i18n_js?
         export_i18n_js_dir_path = configuration.export_i18n_js_dir_path
-        return unless export_i18n_js_dir_path.is_a? String
 
         FileUtils.mkdir_p(export_i18n_js_dir_path)
 
