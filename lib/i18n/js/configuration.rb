@@ -38,6 +38,17 @@ module I18n
       def sort_translation_keys=(value)
         @sort_translation_keys = !!value
       end
+
+      def use_fallbacks?
+        fallbacks != false
+      end
+
+      def fallbacks
+        JS.config.fetch(:fallbacks) do
+          # default value
+          true
+        end
+      end
     end
   end
 end

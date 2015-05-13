@@ -70,7 +70,7 @@ module I18n
 
         result = segment_for_scope(only, exceptions)
 
-        merge_with_fallbacks!(result) if fallbacks
+        merge_with_fallbacks!(result) if configuration.use_fallbacks?
 
         segments << Segment.new(file, result, segment_options) unless result.empty?
 
@@ -81,7 +81,7 @@ module I18n
     # deep_merge! given result with result for fallback locale
     def self.merge_with_fallbacks!(result)
       I18n.available_locales.each do |locale|
-        fallback_locales = FallbackLocales.new(fallbacks, locale)
+        fallback_locales = FallbackLocales.new(configuration.fallbacks, locale)
         fallback_locales.each do |fallback_locale|
           result[locale] = Utils.deep_merge(result[fallback_locale], result[locale] || {})
         end
@@ -171,17 +171,6 @@ module I18n
       ::I18n.backend.instance_eval do
         init_translations unless initialized?
         translations.slice(*::I18n.available_locales)
-      end
-    end
-
-    def self.use_fallbacks?
-      fallbacks != false
-    end
-
-    def self.fallbacks
-      config.fetch(:fallbacks) do
-        # default value
-        true
       end
     end
 
