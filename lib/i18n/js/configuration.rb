@@ -22,9 +22,7 @@ module I18n
       end
 
       def export_i18n_js_dir_path
-        @export_i18n_js_dir_path ||= (JS.config[:export_i18n_js] || :none) if JS.config.has_key?(:export_i18n_js)
         @export_i18n_js_dir_path ||= DEFAULT_EXPORT_DIR_PATH
-        @export_i18n_js_dir_path
       end
 
       ## Setting this to nil would disable i18n.js exporting
@@ -34,7 +32,6 @@ module I18n
       end
 
       def sort_translation_keys?
-        @sort_translation_keys ||= (JS.config[:sort_translation_keys]) if JS.config.has_key?(:sort_translation_keys)
         @sort_translation_keys = true if @sort_translation_keys.nil?
         @sort_translation_keys
       end
@@ -48,10 +45,28 @@ module I18n
       end
 
       def fallbacks
-        JS.config.fetch(:fallbacks) do
-          # default value
-          true
-        end
+        return @fallbacks if instance_variable_defined?(:@fallbacks)
+        true
+      end
+
+      def fallbacks=(value)
+        @fallbacks = value
+      end
+
+      # The name is a bit confusing
+      # This is not actual translations, but config about translations to include/exclude
+      def translations
+        return @translations if instance_variable_defined?(:@translations)
+
+        [
+          {
+            file: "#{DEFAULT_EXPORT_DIR_PATH}/translations.js",
+          }
+        ]
+      end
+
+      def translations=(value)
+        @translations = value
       end
     end
   end

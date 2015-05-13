@@ -90,19 +90,23 @@ MyNamespace.translations["fr"] = {"test":"Test2"};
     end
 
     context "when sort_translation_keys? is true" do
-      before :each do
-        I18n::JS.configuration.sort_translation_keys = true
-      end
+      I18n::JS.with_temp_configuration do
+        before do
+          I18n::JS.configure do |config|
+            config.sort_translation_keys = true
+          end
+        end
 
-      let(:translations){ { en: { "b" => "Test", "a" => "Test" } } }
+        let(:translations){ { en: { "b" => "Test", "a" => "Test" } } }
 
-      it 'should output the keys as sorted' do
-        file_should_exist "segment.js"
+        it 'should output the keys as sorted' do
+          file_should_exist "segment.js"
 
-        File.open(File.join(temp_path, "segment.js")){|f| f.read}.should eql <<-EOF
+          File.open(File.join(temp_path, "segment.js")){|f| f.read}.should eql <<-EOF
 MyNamespace.translations || (MyNamespace.translations = {});
 MyNamespace.translations["en"] = {"a":"Test","b":"Test"};
-        EOF
+          EOF
+        end
       end
     end
   end

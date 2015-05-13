@@ -72,32 +72,6 @@ describe I18n::JS::Configuration do
 
       after { instance.send(:remove_instance_variable, :@sort_translation_keys) }
 
-      context "set with config" do
-        context 'when :sort_translation_keys is not set in config' do
-          before :each do
-            set_config "default.yml"
-          end
-
-          it { should eq true }
-        end
-
-        context 'when :sort_translation_keys set to true in config' do
-          before :each do
-            set_config "js_sort_translation_keys_true.yml"
-          end
-
-          it { should eq true }
-        end
-
-        context 'when :sort_translation_keys set to false in config' do
-          before :each do
-            set_config "js_sort_translation_keys_false.yml"
-          end
-
-          it { should eq false }
-        end
-      end
-
       context 'set by #sort_translation_keys=' do
         context "when it is not set" do
           it { should eq true }

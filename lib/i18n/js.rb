@@ -34,14 +34,23 @@ module I18n
       @configuration ||= Configuration.new
     end
 
-    # The configuration file. This defaults to the `config/i18n-js.yml` file.
+    # @api private
     #
-    def self.config_file_path
-      @config_file_path ||= DEFAULT_CONFIG_PATH
+    # Reset the configuration
+    # For testing only, don't use this for production
+    def self.reset_configuration!
+      @configuration = nil
     end
 
-    def self.config_file_path=(new_path)
-      @config_file_path = new_path
+    # @api private
+    #
+    # Makes `.configuration` returns a copy of current configuration, but also revert any change inside the block
+    # For testing only, don't use this for production
+    def self.with_temp_configuration
+      tmp_configuration = configuration
+      yield
+    ensure
+      @configuration = tmp_configuration
     end
 
     # Export translations to JavaScript, considering settings
@@ -57,24 +66,6 @@ module I18n
         exclude(translations, exceptions)
       else
         scoped_translations(scope, exceptions)
-      end
-    end
-
-    def self.configured_segments
-      config[:translations].inject([]) do |segments, options|
-        file = options[:file]
-        only = options[:only] || '*'
-        exceptions = [options[:except] || []].flatten
-
-        segment_options = options.slice(:namespace, :pretty_print)
-
-        result = segment_for_scope(only, exceptions)
-
-        merge_with_fallbacks!(result) if configuration.use_fallbacks?
-
-        segments << Segment.new(file, result, segment_options) unless result.empty?
-
-        segments
       end
     end
 
@@ -99,27 +90,21 @@ module I18n
     end
 
     def self.translation_segments
-      if config? && config[:translations]
-        configured_segments
-      else
-        [Segment.new("#{Configuration::DEFAULT_EXPORT_DIR_PATH}/translations.js", translations)]
-      end
-    end
+      configuration.translations.inject([]) do |segments, options|
+        file = options[:file]
+        only = options[:only] || '*'
+        exceptions = [options[:except] || []].flatten
 
-    # Load configuration file for partial exporting and
-    # custom output directory
-    def self.config
-      if config?
-        erb = ERB.new(File.read(config_file_path)).result
-        (YAML.load(erb) || {}).with_indifferent_access
-      else
-        {}
-      end
-    end
+        segment_options = options.slice(:namespace, :pretty_print)
 
-    # Check if configuration file exist
-    def self.config?
-      File.file? config_file_path
+        result = segment_for_scope(only, exceptions)
+
+        merge_with_fallbacks!(result) if configuration.use_fallbacks?
+
+        segments << Segment.new(file, result, segment_options) unless result.empty?
+
+        segments
+      end
     end
 
     def self.scoped_translations(scopes, exceptions = []) # :nodoc:
