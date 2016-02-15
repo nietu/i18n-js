@@ -1,5 +1,55 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [Unreleased]
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Nothing
+
+### Fixed
+
+- [JS] Throw an error when `I18n.strftime()` takes an invalid date ([#383](https://github.com/fnando/i18n-js/pull/383))
+
+
+
+## [3.0.0.rc12] - 2015-12-30
+
+### Added
+
+- [JS] Allow extending of translation files ([#354](https://github.com/fnando/i18n-js/pull/354))
+- [JS] Allow missingPlaceholder to receive extra data for debugging ([#380](https://github.com/fnando/i18n-js/pull/380))
+
+### Changed
+
+- Nothing
+
+### Fixed
+
+- [Ruby] Fix of missing initializer at sprockets. ([#371](https://github.com/fnando/i18n-js/pull/371))
+- [Ruby] Use proper method to register preprocessor documented by sprockets-rails. ([#376](https://github.com/fnando/i18n-js/pull/376))
+- [JS] Correctly round unprecise floating point numbers.
+- [JS] Ensure objects are recognized when passed in from an iframe. ([#375](https://github.com/fnando/i18n-js/pull/375))
+
+
+## 3.0.0.rc11
+
+### breaking changes
+
+### enhancements
+
+### bug fixes
+
+- [Ruby] Handle fallback locale without any translation properly ([#338](https://github.com/fnando/i18n-js/pull/338))
+- [Ruby] Prevent translation entry with null value to override value in fallback locale(s), if enabled ([#334](https://github.com/fnando/i18n-js/pull/334))
+
+
+## 3.0.0.rc10
 
 ### breaking changes
 
@@ -35,6 +85,7 @@
 ### bug fixes
 
 - [JS] Fix missing translation message when scope is passed in options
+- [Ruby] Fix save cache directory verification when path is a symbolic link ([#329](https://github.com/fnando/i18n-js/pull/329))
 
 
 ## 3.0.0.rc8
@@ -105,3 +156,8 @@
 ## Before 3.0.0.rc5
 
 - Things happened.
+
+
+
+[Unreleased]: https://github.com/fnando/i18n-js/compare/v3.0.0.rc12...HEAD
+[3.0.0.rc12]: https://github.com/fnando/i18n-js/compare/v3.0.0.rc11...v3.0.0.rc12
